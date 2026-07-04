@@ -1,8 +1,9 @@
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3000/api';
 
 export const COLORS = {
-  primary: '#2563EB',
-  primaryLight: '#DBEAFE',
+  primary: '#16A34A',
+  primaryLight: '#DCFCE7',
+  primaryDark: '#15803D',
   secondary: '#059669',
   secondaryLight: '#D1FAE5',
   accent: '#F59E0B',
@@ -17,6 +18,12 @@ export const COLORS = {
   textMuted: '#9CA3AF',
   white: '#FFFFFF',
   shadow: '#000',
+  orange: '#F97316',
+  orangeLight: '#FFF7ED',
+  purple: '#9333EA',
+  purpleLight: '#F3E8FF',
+  blue: '#2563EB',
+  blueLight: '#DBEAFE',
 };
 
 export const FONTS = {

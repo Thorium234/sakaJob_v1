@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { Button, Input, ScreenWrapper } from "@/components";
 import { COLORS, SPACING } from "@/constants/theme";
 import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -50,7 +51,7 @@ export default function RegisterScreen() {
         companyRegNumber: companyRegNumber.trim() || undefined,
         companyDescription: companyDescription.trim() || undefined,
       });
-      router.replace("/(tabs)");
+      router.replace("/(tabs)" as any);
     } catch (err: any) {
       Alert.alert("Registration failed", err.message || "Something went wrong");
     } finally {
@@ -68,6 +69,13 @@ export default function RegisterScreen() {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={styles.logoSection}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>S</Text>
+            </View>
+            <Text style={styles.appName}>Saka</Text>
+          </View>
+
           <Text style={styles.title}>Create account</Text>
           <Text style={styles.subtitle}>Join Saka today</Text>
 
@@ -170,12 +178,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: SPACING.lg,
   },
+  logoSection: { alignItems: "center", marginBottom: SPACING.lg, marginTop: SPACING.xl },
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  logoText: { fontSize: 28, fontWeight: "800", color: COLORS.white },
+  appName: { fontSize: 24, fontWeight: "700", color: COLORS.text },
   title: {
     fontSize: 28,
     fontWeight: "700",
     color: COLORS.text,
     marginBottom: 4,
-    marginTop: SPACING.xl,
   },
   subtitle: {
     fontSize: 16,

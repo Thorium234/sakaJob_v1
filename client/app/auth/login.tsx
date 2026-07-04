@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { Button, Input, ScreenWrapper } from "@/components";
 import { COLORS, SPACING } from "@/constants/theme";
 import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -25,7 +26,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      router.replace("/(tabs)");
+      router.replace("/(tabs)" as any);
     } catch (err: any) {
       Alert.alert("Login failed", err.message || "Invalid credentials");
     } finally {
@@ -43,6 +44,14 @@ export default function LoginScreen() {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Logo */}
+          <View style={styles.logoSection}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>S</Text>
+            </View>
+            <Text style={styles.appName}>Saka</Text>
+          </View>
+
           <Text style={styles.title}>Welcome back</Text>
           <Text style={styles.subtitle}>Sign in to your Saka account</Text>
 
@@ -75,7 +84,7 @@ export default function LoginScreen() {
           <Button
             title="Don't have an account? Sign Up"
             variant="ghost"
-            onPress={() => router.push("/auth/register")}
+            onPress={() => router.push("/auth/register" as any)}
             style={{ marginTop: SPACING.md }}
           />
         </ScrollView>
@@ -90,6 +99,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: SPACING.lg,
   },
+  logoSection: { alignItems: "center", marginBottom: SPACING.xl },
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  logoText: { fontSize: 28, fontWeight: "800", color: COLORS.white },
+  appName: { fontSize: 24, fontWeight: "700", color: COLORS.text },
   title: {
     fontSize: 28,
     fontWeight: "700",
