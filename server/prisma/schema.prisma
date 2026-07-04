@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  JOB_SEEKER
+  EMPLOYER
+  ADMIN
+}
+
+enum ApplicationStatus {
+  RECEIVED
+  SHORTLISTED
+  INTERVIEW
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+}
+
+enum JobStatus {
+  ACTIVE
+  CLOSED
+  DRAFT
+  EXPIRED
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String
+  role           UserRole @default(JOB_SEEKER)
+  fullName       String
+  phone          String?
+  nationalId     String?  @unique
+  nationalIdVerified Boolean @default(false)
+  avatarUrl      String?
+  bio            String?
+  location       String?
+  county         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Job Seeker fields
+  education      String?
+  skills         String?
+  experience     String?
+  certifications String?
+  preferredLocation String?
+  salaryExpectation Float?
+  availability   String?
+  portfolioUrls  String?
+  certificatesUrl String?
+  introVideoUrl  String?
+
+  // Employer fields
+  companyName    String?
+  companyRegNumber String?
+  companyVerified Boolean  @default(false)
+  companyLogoUrl String?
+  companyWebsite String?
+  companyDescription String?
+
+  // Relations
+  applications    Application[]
+  jobs            Job[]
+  sentMessages    Message[]       @relation("sender")
+  receivedMessages Message[]      @relation("receiver")
+  reviewsGiven    Review[]        @relation("reviewer")
+  reviewsReceived Review[]        @relation("reviewee")
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  title         String
+  description   String
+  requirements  String?
+  responsibilities String?
+  location      String
+  county        String?
+  employmentType String?
+  salaryMin     Float?
+  salaryMax     Float?
+  salaryCurrency String?  @default("KES")
+  category      String?
+  experienceLevel String?
+  skillsRequired String?
+  educationRequired String?
+  vacanciesCount Int      @default(1)
+  status        JobStatus @default(ACTIVE)
+  expiresAt     DateTime?
+  isPromoted    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  employerId    String
+  employer      User      @relation(fields: [employerId], references: [id])
+
+  applications  Application[]
+
+  @@map("jobs")
+}
+
+model Application {
+  id              String            @id @default(cuid())
+  status          ApplicationStatus @default(RECEIVED)
+  coverLetter     String?
+  compatibilityScore Float?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  jobId           String
+  job             Job               @relation(fields: [jobId], references: [id])
+  applicantId     String
+  applicant       User              @relation(fields: [applicantId], references: [id])
+
+  @@unique([jobId, applicantId])
+  @@map("applications")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  senderId   String
+  sender     User     @relation("sender", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
+
+  jobId     String?
+  job       Job?     @relation(fields: [jobId], references: [id])
+
+  @@map("messages")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  reviewerId String
+  reviewer   User   @relation("reviewer", fields: [reviewerId], references: [id])
+  revieweeId String
+  reviewee   User   @relation("reviewee", fields: [revieweeId], references: [id])
+  jobId      String?
+  job        Job?   @relation(fields: [jobId], references: [id])
+
+  @@map("reviews")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  type      String?
+  data      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
