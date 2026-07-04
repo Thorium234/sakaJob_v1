@@ -43,3 +43,6 @@ app-example
 /android
 AGENTS.md
 *.claude
+
+# dependency list (generated)
+dependencies.txt
