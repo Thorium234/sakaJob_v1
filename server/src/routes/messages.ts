@@ -5,36 +5,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// GET /api/messages/:userId
-router.get('/:userId', authenticate, async (req: AuthRequest, res: Response) => {
-  try {
-    const messages = await prisma.message.findMany({
-      where: {
-        OR: [
-          { senderId: req.user!.userId, receiverId: req.params.userId },
-          { senderId: req.params.userId, receiverId: req.user!.userId },
-        ],
-      },
-      include: {
-        sender: { select: { id: true, fullName: true, avatarUrl: true, role: true } },
-        receiver: { select: { id: true, fullName: true, avatarUrl: true, role: true } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-
-    // Mark as read
-    await prisma.message.updateMany({
-      where: { senderId: req.params.userId, receiverId: req.user!.userId, isRead: false },
-      data: { isRead: true },
-    });
-
-    res.json({ messages });
-  } catch {
-    res.status(500).json({ error: 'Failed to fetch messages' });
-  }
-});
-
-// GET /api/messages/conversations/list
+// GET /api/messages/conversations/list — must be BEFORE /:userId
 router.get('/conversations/list', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const messages = await prisma.message.findMany({
@@ -56,7 +27,7 @@ router.get('/conversations/list', authenticate, async (req: AuthRequest, res: Re
     for (const msg of messages) {
       const otherId = msg.senderId === req.user!.userId ? msg.receiverId : msg.senderId;
       const otherUser = msg.senderId === req.user!.userId ? msg.receiver : msg.sender;
-      
+
       if (!conversationMap.has(otherId)) {
         conversationMap.set(otherId, {
           user: otherUser,
@@ -75,6 +46,18 @@ router.get('/conversations/list', authenticate, async (req: AuthRequest, res: Re
     res.json({ conversations });
   } catch {
     res.status(500).json({ error: 'Failed to fetch conversations' });
+  }
+});
+
+// GET /api/messages/unread/count — must be BEFORE /:userId
+router.get('/unread/count', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const count = await prisma.message.count({
+      where: { receiverId: req.user!.userId, isRead: false },
+    });
+    res.json({ count });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch unread count' });
   }
 });
 
@@ -106,15 +89,32 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/messages/unread/count
-router.get('/unread/count', authenticate, async (req: AuthRequest, res: Response) => {
+// GET /api/messages/:userId — must be AFTER /conversations/list and /unread/count
+router.get('/:userId', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const count = await prisma.message.count({
-      where: { receiverId: req.user!.userId, isRead: false },
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: req.user!.userId, receiverId: req.params.userId },
+          { senderId: req.params.userId, receiverId: req.user!.userId },
+        ],
+      },
+      include: {
+        sender: { select: { id: true, fullName: true, avatarUrl: true, role: true } },
+        receiver: { select: { id: true, fullName: true, avatarUrl: true, role: true } },
+      },
+      orderBy: { createdAt: 'asc' },
     });
-    res.json({ count });
+
+    // Mark as read
+    await prisma.message.updateMany({
+      where: { senderId: req.params.userId, receiverId: req.user!.userId, isRead: false },
+      data: { isRead: true },
+    });
+
+    res.json({ messages });
   } catch {
-    res.status(500).json({ error: 'Failed to fetch unread count' });
+    res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
 

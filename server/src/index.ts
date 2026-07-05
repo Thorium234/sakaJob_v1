@@ -9,6 +9,7 @@ import messageRoutes from './routes/messages';
 import reviewRoutes from './routes/reviews';
 import notificationRoutes from './routes/notifications';
 import lookupRoutes from './routes/lookup';
+import v2Routes from './routes/v2';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,19 +20,22 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/v1/health', (_req, res) => {
+  res.json({ status: 'ok', version: 'v1', timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/lookup', lookupRoutes);
+// V1 Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/applications', applicationRoutes);
+app.use('/api/v1/messages', messageRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/lookup', lookupRoutes);
+
+// V2 Routes
+app.use('/api/v2', v2Routes);
 
 // Error handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
