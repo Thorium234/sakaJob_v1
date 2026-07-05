@@ -9,7 +9,7 @@ SETUP.MD
 dist/
 web-build/
 expo-env.d.ts
-
+*.txt
 # Native
 .kotlin/
 *.orig.*
