@@ -31,9 +31,10 @@ else
   echo "[server] Database already exists."
 fi
 
-cd "$ROOT_DIR/server"
 echo "[server] Starting API server on port 3000..."
-npx tsx src/index.ts &
+# Kill any previous instance on port 3000
+kill $(lsof -ti:3000) 2>/dev/null || true
+cd "$ROOT_DIR/server" && npx tsx src/index.ts &
 SERVER_PID=$!
 sleep 2
 
@@ -46,7 +47,7 @@ else
 fi
 
 echo "[client] Starting Expo dev server..."
-npx expo start &
+cd "$ROOT_DIR/client" && npx expo start &
 CLIENT_PID=$!
 
 echo ""
