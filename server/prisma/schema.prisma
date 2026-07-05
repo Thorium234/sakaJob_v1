@@ -105,6 +105,9 @@ model Job {
 
   applications  Application[]
 
+  messages      Message[]
+  reviews       Review[]
+
   @@map("jobs")
 }
 
