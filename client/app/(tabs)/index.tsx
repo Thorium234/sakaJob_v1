@@ -32,7 +32,7 @@ export default function DashboardScreen() {
             <Text style={styles.greeting}>
               Welcome back, {user?.fullName?.split(" ")[0] || "John"}!
             </Text>
-            <Text style={styles.subheading}>Here's what's happening with your job search.</Text>
+            <Text style={styles.subheading}>Here&apos;s what&apos;s happening with your job search.</Text>
           </View>
           <TouchableOpacity style={styles.notifBtn}>
             <Ionicons name="notifications-outline" size={22} color={COLORS.text} />
