@@ -6,9 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
-
-  if (!user) return null;
+  const { user, logout, isLoading } = useAuth();
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure?", [
@@ -18,6 +16,19 @@ export default function ProfileScreen() {
   };
 
   const skills = ["React", "Node.js", "TypeScript", "Tailwind CSS", "PostgreSQL", "Git", "Figma"];
+
+  if (isLoading) {
+    return (
+      <ScreenWrapper>
+        <View style={[styles.container, { flex: 1, justifyContent: "center", alignItems: "center" }]}>
+          <Text>Loading...</Text>
+        </View>
+      </ScreenWrapper>
+    );
+  }
+
+  const displayName = user?.fullName || "John Doe";
+  const displayEmail = user?.email || "john.doe@example.com";
 
   return (
     <ScreenWrapper>
@@ -37,7 +48,7 @@ export default function ProfileScreen() {
             <View style={styles.profileDetails}>
               <View style={styles.nameRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{user.fullName}</Text>
+                  <Text style={styles.name}>{displayName}</Text>
                   <Text style={styles.role}>Senior Software Developer</Text>
                 </View>
                 <TouchableOpacity style={styles.editBtn}>
@@ -57,7 +68,7 @@ export default function ProfileScreen() {
               <View style={styles.contactRow}>
                 <View style={styles.contactItem}>
                   <Ionicons name="mail-outline" size={14} color={COLORS.textSecondary} />
-                  <Text style={styles.contactText}>{user.email}</Text>
+                  <Text style={styles.contactText}>{displayEmail}</Text>
                 </View>
               </View>
             </View>

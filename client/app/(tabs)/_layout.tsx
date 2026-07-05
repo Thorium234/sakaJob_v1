@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/theme";
 
@@ -12,7 +13,7 @@ export default function TabsLayout() {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
           paddingTop: 4,
-          height: 60,
+          height: Platform.OS === "ios" ? 85 : 60,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -47,6 +48,15 @@ export default function TabsLayout() {
           title: "Messages",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="learning"
+        options={{
+          title: "Learning",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="book" size={size} color={color} />
           ),
         }}
       />

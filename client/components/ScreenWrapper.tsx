@@ -1,4 +1,5 @@
-import { SafeAreaView, StyleSheet, ViewStyle } from "react-native";
+import { View, StyleSheet, ViewStyle } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/theme";
 
 interface ScreenWrapperProps {
@@ -7,10 +8,11 @@ interface ScreenWrapperProps {
 }
 
 export default function ScreenWrapper({ children, style }: ScreenWrapperProps) {
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={[styles.screen, style]}>
+    <View style={[styles.screen, { paddingTop: insets.top }, style]}>
       {children}
-    </SafeAreaView>
+    </View>
   );
 }
 
