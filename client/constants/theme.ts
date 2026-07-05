@@ -1,4 +1,5 @@
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3000/api/v1';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3000/api/v2';
+export const API_BASE_URL_V1 = process.env.EXPO_PUBLIC_API_URL_V1 || 'http://10.0.2.2:3000/api/v1';
 
 export const COLORS = {
   primary: '#16A34A',
