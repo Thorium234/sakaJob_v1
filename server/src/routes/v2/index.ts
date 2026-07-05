@@ -15,7 +15,7 @@ router.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', version: 'v2', timestamp: new Date().toISOString() });
 });
 
-// V2 placeholder routes
+// V2 Routes — production API
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
 router.use('/jobs', jobRoutes);

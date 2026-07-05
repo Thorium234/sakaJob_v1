@@ -4,6 +4,7 @@ import { authenticate, AuthRequest } from '../../middleware/auth';
 
 const router = Router();
 
+// GET /api/v2/notifications
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const notifications = await prisma.notification.findMany({
@@ -11,28 +12,39 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
+
     res.json({ notifications });
-  } catch { res.status(500).json({ error: 'Failed to fetch notifications' }); }
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
 });
 
+// PATCH /api/v2/notifications/:id/read
 router.patch('/:id/read', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    await prisma.notification.updateMany({
+    const notification = await prisma.notification.updateMany({
       where: { id: req.params.id, userId: req.user!.userId },
       data: { isRead: true },
     });
+
     res.json({ success: true });
-  } catch { res.status(500).json({ error: 'Failed to mark read' }); }
+  } catch {
+    res.status(500).json({ error: 'Failed to mark as read' });
+  }
 });
 
+// PATCH /api/v2/notifications/read-all
 router.patch('/read-all', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     await prisma.notification.updateMany({
       where: { userId: req.user!.userId, isRead: false },
       data: { isRead: true },
     });
+
     res.json({ success: true });
-  } catch { res.status(500).json({ error: 'Failed to mark all read' }); }
+  } catch {
+    res.status(500).json({ error: 'Failed to mark all as read' });
+  }
 });
 
 export default router;

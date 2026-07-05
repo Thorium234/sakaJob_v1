@@ -5,17 +5,28 @@ import { authenticate, AuthRequest } from '../../middleware/auth';
 
 const router = Router();
 
+// POST /api/v2/reviews
 router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const data = reviewSchema.parse(req.body);
-    if (!req.body.revieweeId) return res.status(400).json({ error: 'revieweeId is required' });
+    const { revieweeId } = req.body;
+
+    if (!revieweeId) return res.status(400).json({ error: 'revieweeId is required' });
+    if (revieweeId === req.user!.userId) return res.status(400).json({ error: 'Cannot review yourself' });
+
     const review = await prisma.review.create({
-      data: { rating: data.rating, comment: data.comment, jobId: data.jobId, reviewerId: req.user!.userId, revieweeId: req.body.revieweeId },
+      data: {
+        rating: data.rating,
+        comment: data.comment,
+        reviewerId: req.user!.userId,
+        revieweeId,
+        jobId: data.jobId,
+      },
       include: {
         reviewer: { select: { id: true, fullName: true, avatarUrl: true } },
-        reviewee: { select: { id: true, fullName: true } },
       },
     });
+
     res.status(201).json({ review });
   } catch (error: any) {
     if (error?.issues) return res.status(400).json({ error: 'Validation failed', details: error.issues });
@@ -23,15 +34,32 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// GET /api/v2/reviews/user/:userId
 router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
   try {
     const reviews = await prisma.review.findMany({
       where: { revieweeId: req.params.userId },
-      include: { reviewer: { select: { id: true, fullName: true, avatarUrl: true } } },
+      include: {
+        reviewer: { select: { id: true, fullName: true, avatarUrl: true } },
+        job: { select: { id: true, title: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
-    res.json({ reviews });
-  } catch { res.status(500).json({ error: 'Failed to fetch reviews' }); }
+
+    const avg = await prisma.review.aggregate({
+      where: { revieweeId: req.params.userId },
+      _avg: { rating: true },
+      _count: true,
+    });
+
+    res.json({
+      reviews,
+      averageRating: avg._avg.rating || 0,
+      totalReviews: avg._count || 0,
+    });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch reviews' });
+  }
 });
 
 export default router;
